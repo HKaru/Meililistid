@@ -36,10 +36,10 @@ if ($NF -eq "") {
     if (Test-Path $exportfile) {
         $overwrite = $false
         while (-not $overwrite) {
-            $newfilename = Read-Host "Selle nimega fail on juba olemas. Palun vali uus nimi:"
+            $newfilename = Read-Host "Selle nimega fail on juba olemas. Palun vali uus nimi koos faililaiendiga (.csv)"
             $newfile = Join-Path (Split-Path $exportfile) $newfilename
             if (Test-Path $newfile) {
-                Write-Host "Selle nimega fail on juba olemas. Palun vali uus nimi."
+                Write-Host "Selle nimega fail on juba olemas. Palun vali uus nimi koos faililaiendiga (.csv)"
             }
             else {
                 $exportfile = $newfile
