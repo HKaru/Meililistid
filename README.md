@@ -12,27 +12,48 @@
 
 ```
 Connect-ExchangeOnline -ShowBanner:$False
-clear
-$NF =""
 
+Clear
+$NF = ""
 
-$DL = Read-Host "Pane Distribution Listi nimi"
+$DL = Read-Host "Sisesta soovitud Distribution Listi nimi"
 
-write-host $DL
-# Kood kontrollib kas see list on olemas
-try{Get-DistributionGroup -Identity $DL} catch{$NF="Distribution List Not Found"} 
-  
-if($NF -eq "")  
- {
- # Salvesta list - vajadusel saad muuta kohta
- $exportfile =  'C:\Meililisti_liikmed.csv' 
+Write-Host $DL
 
- # Siin valid mis tulbad sa expordid ning salvestad CSV failina 
- Get-DistributionGroupMember -Identity $DL | Select Name, PrimarySMTPAddress | Export-Csv -Path $exportfile  
+# Kontrollime, kas selline list on olemas
+try {
+    Get-DistributionGroup -Identity $DL
+}
+catch {
+    $NF = "Distribution Listi ei leitud"
 }
 
-Else 
-{
-Write-host "Distribution listi ei leitud, kontrolli õigekirja"
+if ($NF -eq "") {
+    # Specify the export file path
+    $exportfile = 'C:\Meililisti_liikmed.csv'
+    
+    # Kontrollime kas fail on juba olemas
+    if (Test-Path $exportfile) {
+        $overwrite = $false
+        while (-not $overwrite) {
+            $newfilename = Read-Host "Selle nimega fail on juba olemas. Palun vali uus nimi:"
+            $newfile = Join-Path (Split-Path $exportfile) $newfilename
+            if (Test-Path $newfile) {
+                Write-Host "Selle nimega fail on juba olemas. Palun vali uus nimi."
+            }
+            else {
+                $exportfile = $newfile
+                $overwrite = $true
+            }
+        }
+    }
+    
+    # Expordime listi CSV failina
+    Get-DistributionGroupMember -Identity $DL | Select Name, PrimarySMTPAddress | Export-Csv -Path $exportfile -Force
+    
+    Write-Host "Export tehtud. Korras."
+}
+else {
+    Write-Host "Distribution Listi ei leitud. Kas kirjutasid nime õigesti?"
 }
 ```
